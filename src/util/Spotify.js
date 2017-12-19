@@ -10,17 +10,20 @@ let expiresAt = localStorage.getItem("expiresAt");
 
 function setExpirationTime(expiresIn) {
     let current = new Date();
-    let expiration = current.setSeconds(current.getSeconds() + expiresIn);
-    console.log(expiration);
+    let expiration = new Date(current.setSeconds(current.getSeconds() + expiresIn));
+    console.log('Expiration time ' + expiration);
     return expiration;
 }
 
 function expired() {
     if(expiresAt !== null && expiresAt !== 0) {
         console.log('expiresAt variable has a value');
-        let checkExpiration = new Date().getSeconds - Number(expiresAt) >= 0;
-        console.log(checkExpiration);
-        return checkExpiration;
+        let current = new Date();
+        let expirationTime = new Date(localStorage.getItem('expiresAt'));
+        console.log(expirationTime);
+        let expired = current >= expirationTime;
+        console.log('Expired ' + expired);
+        return expired;
     } 
     return true;
 }
@@ -76,10 +79,8 @@ export const Spotify = {
         //clearStorage();
         // get the updated token
         let accessTokenVal = this.getAccessToken();
-        console.log(accessToken);
-        console.log('reach');
         let url = `${spotifyApiUrl}search?q=${term}&type=track`
-        fetch(url, { headers: { 'Authorization': `Bearer ${accessTokenVal}` } }).then( response => {
+        return fetch(url, { headers: { 'Authorization': `Bearer ${accessTokenVal}` } }).then( response => {
             //console.log(response);
             if(response.ok) {
                 return response.json();
@@ -88,14 +89,15 @@ export const Spotify = {
         }, networkError => console.log(networkError.message)
         ).then( jsonResponse => {
             if(jsonResponse.tracks) {
-                console.log(jsonResponse.tracks.items);
-                return jsonResponse.tracks.items.map( track => ({
+                let tracks = jsonResponse.tracks.items.map( track => ({
                     id : track.id,
                     name : track.name,
-                    album : track.album,
+                    album : track.album.name,
                     artist : track.artists[0].name,
-                    uri : track.uri,
+                    uri : track.uri
                 }));
+                console.log(tracks);
+                return tracks;
             }
             return [];
         });

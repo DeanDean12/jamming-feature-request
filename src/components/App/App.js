@@ -9,28 +9,42 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            searchResults: []
+            searchResults: [],
+            playlist: []
         };
         this.searchSpotify = this.searchSpotify.bind(this);
+        this.addTrackToPlaylist = this.addTrackToPlaylist.bind(this);
+        this.removeTrackFromPlaylist = this.removeTrackFromPlaylist.bind(this);
     }
 
     searchSpotify(term) {
-        Spotify.search(term);
-        //.then(searchResults => this.setState({searchResults: searchResults}));
+        Spotify.search(term)
+        .then(searchResults => this.setState({searchResults: searchResults}));
     }
 
-    addTrackToPlaylist() {
-        console.log("add");
+    addTrackToPlaylist(track) {
+        this.setState({ playlist: this.state.playlist.concat(track) });
     }
-    
+
+    removeTrackFromPlaylist(track) {
+        let playlist = this.state.playlist;
+       for(let i = 0; i < playlist.length; i++) {
+            if(playlist[i].id === track.id) {
+                playlist.splice(i, 1);
+                this.setState({ playlist: playlist});
+                return;
+            }
+        } 
+    }   
+ 
     render() {
     return (
         <div className="App">
             <h1>Ja<span className="highlight">mmm</span>ing</h1>
             <SearchBar searchSpotify={this.searchSpotify} />
             <div className="App-playlist">
-                <SearchResults searchResults={this.state.searchResults} />
-                <Playlist />
+                <SearchResults searchResults={this.state.searchResults} addTrackToPlaylist={this.addTrackToPlaylist} />
+                <Playlist playlist={this.state.playlist} removeTrackFromPlaylist={this.removeTrackFromPlaylist} />
             </div>
         </div>
     );
