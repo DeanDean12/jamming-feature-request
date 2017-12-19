@@ -14,10 +14,9 @@ class App extends React.Component {
         this.searchSpotify = this.searchSpotify.bind(this);
     }
 
-    searchSpotify() {
-        console.log("search");
-        Spotify.search(term)
-        .then(searchResults => this.setState({searchResults: searchResults}));
+    searchSpotify(term) {
+        Spotify.search(term);
+        //.then(searchResults => this.setState({searchResults: searchResults}));
     }
 
     addTrackToPlaylist() {
@@ -27,7 +26,7 @@ class App extends React.Component {
     render() {
     return (
         <div className="App">
-            <h1>Ja<span class="highlight">mmm</span>ing</h1>
+            <h1>Ja<span className="highlight">mmm</span>ing</h1>
             <SearchBar searchSpotify={this.searchSpotify} />
             <div className="App-playlist">
                 <SearchResults searchResults={this.state.searchResults} />
