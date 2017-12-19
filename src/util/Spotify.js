@@ -2,12 +2,11 @@ import {credentials} from '../config/credentials';
 
 const clientID = credentials.spotify.clientID;
 const redirectURI = credentials.spotify.redirectURI;
+const spotifyAccessUrl = 'https://accounts.spotify.com/'; 
+const spotifyApiUrl = 'https://api.spotify.com/v1/'; 
 
 let accessToken = localStorage.getItem("accessToken");
 let expiresAt = localStorage.getItem("expiresAt");
-
-const spotifyAccessUrl = 'https://accounts.spotify.com/'; 
-const spotifyApiUrl = 'https://api.spotify.com/v1/'; 
 
 function setExpirationTime(expiresIn) {
     let current = new Date();
@@ -19,7 +18,7 @@ function setExpirationTime(expiresIn) {
 function expired() {
     if(expiresAt !== null && expiresAt !== 0) {
         console.log('expiresAt variable has a value');
-        let checkExpiration = new Date().getSeconds - expiresAt >= 0;
+        let checkExpiration = new Date().getSeconds - Number(expiresAt) >= 0;
         console.log(checkExpiration);
         return checkExpiration;
     } 
@@ -48,11 +47,9 @@ export const Spotify = {
                 return;
             } else {
                 localStorage.setItem("accessToken", params.access_token);
-                expiresAt = params.expires_in;
-
-                console.log(params.expires_in);
-                console.log(typeof params.expires_in);
-                localStorage.setItem("expiresAt", setExpirationTime(params.expires_in));
+                let expiresIn = params.expires_in;
+                console.log(Number(expiresIn));
+                localStorage.setItem("expiresAt", setExpirationTime(Number(expiresIn)));
                 console.log("Set tokens");
 
                 //clear URL
@@ -64,19 +61,13 @@ export const Spotify = {
             }
         } else if(accessToken === null || accessToken === '' || expired()) { // not previously set, so check if they are still valid
             console.log("invalid access token or token has expired");
-
             //clear storage
             clearStorage();
-
             //reauthenticate
             window.location = url;
             return;
         } else {
-            console.log(expiresAt);
-            let current = new Date();
-            current = current.getTime() / 1000;
-            console.log('now ' + current);
-            console.log(accessToken);
+            console.log(typeof expiresAt);
             return accessToken;
         }
     },
@@ -89,14 +80,24 @@ export const Spotify = {
         console.log('reach');
         let url = `${spotifyApiUrl}search?q=${term}&type=track`
         fetch(url, { headers: { 'Authorization': `Bearer ${accessTokenVal}` } }).then( response => {
-            console.log(response);
+            //console.log(response);
             if(response.ok) {
                 return response.json();
             }
             throw new Error('Request failed!');
         }, networkError => console.log(networkError.message)
         ).then( jsonResponse => {
-            console.log(jsonResponse);
+            if(jsonResponse.tracks) {
+                console.log(jsonResponse.tracks.items);
+                return jsonResponse.tracks.items.map( track => ({
+                    id : track.id,
+                    name : track.name,
+                    album : track.album,
+                    artist : track.artists[0].name,
+                    uri : track.uri,
+                }));
+            }
+            return [];
         });
         
     },
@@ -110,11 +111,7 @@ export const Spotify = {
             hashParams[exp[1]] = decodeURIComponent(exp[2]);
             exp = regex.exec(urlHash);
         }
-        //console.log(hashParams);
         return hashParams;
-        //token_type
-        //expires_in
-        //access_token
     },
 
     submit(playlist) {
