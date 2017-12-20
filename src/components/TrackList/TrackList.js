@@ -8,6 +8,10 @@ class TrackList extends React.Component {
 
     //add track
         //parent function
+    /*constructor(props) {
+        super(props);
+        this.state.
+    }*/
 
     render() {
         return (
