@@ -14,7 +14,7 @@ class App extends React.Component {
         };
         this.searchSpotify = this.searchSpotify.bind(this);
         this.addTrackToPlaylist = this.addTrackToPlaylist.bind(this);
-        this.removeTrackFromPlaylist = this.removeTrackFromPlaylist.bind(this);
+        //this.removeTrackFromPlaylist = this.removeTrackFromPlaylist.bind(this);
     }
 
     searchSpotify(term) {
@@ -26,7 +26,7 @@ class App extends React.Component {
         this.setState({ playlist: this.state.playlist.concat(track) });
     }
 
-    removeTrackFromPlaylist(track) {
+    /*removeTrackFromPlaylist(track) {
         let playlist = this.state.playlist;
        for(let i = 0; i < playlist.length; i++) {
             if(playlist[i].id === track.id) {
@@ -35,7 +35,7 @@ class App extends React.Component {
                 return;
             }
         } 
-    }   
+    } */  
  
     render() {
     return (
@@ -45,7 +45,7 @@ class App extends React.Component {
                 <SearchBar searchSpotify={this.searchSpotify} />
                 <div className="App-playlist">
                     <SearchResults searchResults={this.state.searchResults} addTrackToPlaylist={this.addTrackToPlaylist} />
-                    <Playlist playlist={this.state.playlist} removeTrackFromPlaylist={this.removeTrackFromPlaylist} />
+                    <Playlist playlist={this.state.playlist} />
                 </div>
             </div>
         </div>
