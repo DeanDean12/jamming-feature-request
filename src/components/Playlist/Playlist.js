@@ -10,6 +10,7 @@ class Playlist extends React.Component {
             playlist: props.playlist
         };
         this.handlePlaylistNameChange = this.handlePlaylistNameChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.removeTrack = this.removeTrack.bind(this);
     }
    
@@ -19,6 +20,12 @@ class Playlist extends React.Component {
  
     handlePlaylistNameChange(event) {
         this.setState({ playlistName: event.target.value });
+    }
+
+    handleSubmit(event) {
+        this.props.submitPlaylist(this.state.playlist, this.state.playlistName);
+        this.setState({ playlistName: 'New Playlist' });
+        event.preventDefault();
     }
     
     removeTrack(track) {

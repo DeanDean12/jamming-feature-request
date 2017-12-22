@@ -35,13 +35,26 @@ function clearStorage() {
     expiresAt = 0;
 }
 
+function getHashParams() {
+    let hashParams = {};
+    let regex = /([^&;=]+)=?([^&;]*)/g;
+    let urlHash = window.location.hash.substring(1);
+    let exp = regex.exec(urlHash);
+    while( exp ) {
+        hashParams[exp[1]] = decodeURIComponent(exp[2]);
+        exp = regex.exec(urlHash);
+    }
+    return hashParams;
+}
+
+
 export const Spotify = {
 
     getAccessToken() {
         let url = `${spotifyAccessUrl}authorize?client_id=${clientID}&response_type=token&redirect_uri=${redirectURI}&scope=playlist-modify-public`;
         // check if recently set (so the params are in the url)
-        if(Object.keys(this.getHashParams()).length > 0) {
-            let params = this.getHashParams();
+        if(Object.keys(getHashParams()).length > 0) {
+            let params = getHashParams();
             console.log('Params in URL hash');
             if(!params.hasOwnProperty("access_token")  || !params.hasOwnProperty("expires_in")) {
                 console.log("Redirect didn't include the desired params");
@@ -104,19 +117,73 @@ export const Spotify = {
         
     },
 
-    getHashParams() {
-        let hashParams = {};
-        let regex = /([^&;=]+)=?([^&;]*)/g;
-        let urlHash = window.location.hash.substring(1);
-        let exp = regex.exec(urlHash);
-        while( exp ) {
-            hashParams[exp[1]] = decodeURIComponent(exp[2]);
-            exp = regex.exec(urlHash);
-        }
-        return hashParams;
+    submitPlaylist(playlistTracks, playlistName) {
+        let accessTokenVal = this.getAccessToken();
+        //get userid
+        return this.getUserId(accessTokenVal).then( userId => {
+            // create playlist
+            let url = `${spotifyApiUrl}users/${userId}/playlists`
+            return fetch(url, { method: 'POST', 
+                                headers: { 
+                                            'Authorization': `Bearer ${accessTokenVal}`, 
+                                            'Content-Type': 'application-json' 
+                                }, 
+                                body: JSON.stringify({name: playlistName}) 
+                                })
+                .then( response => {
+                    //console.log(response);
+                    if(response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Request failed!');
+                }, networkError => console.log(networkError.message)
+            ).then( jsonResponse => {
+                let playlistId = jsonResponse.id;
+                return this.addTracksToPlaylist(accessTokenVal, userId, playlistId, playlistTracks);
+            });
+        });
     },
 
-    submit(playlist) {
+    getUserId(accessTokenVal) {
+        let url = `${spotifyApiUrl}me`
+        return fetch(url, { headers: { 'Authorization': `Bearer ${accessTokenVal}` } }).then( response => {
+            //console.log(response);
+            if(response.ok) {
+                return response.json();
+            }
+            throw new Error('Request failed!');
+        }, networkError => console.log(networkError.message)
+        ).then( jsonResponse => {
+            return jsonResponse.id;
+        });
+    },
+
+    addTracksToPlaylist(accessTokenVal, userId, playlistId, playlistTracks) {
+        //console.log(playlistTracks);
+        let uris = playlistTracks.map(track => track.uri);
+        console.log(uris);
+        // map playlistTracks to a new array
+        let url = `${spotifyApiUrl}users/${userId}/playlists/${playlistId}/tracks`
+        return fetch(url, {
+                            method: 'POST', 
+                            headers: { 
+                                        'Authorization': `Bearer ${accessTokenVal}`,
+                                        'Content-Type': 'application-json' 
+                                     },
+                            body: JSON.stringify({uris: uris}) 
+                         }
+                    )
+            .then( response => {
+                //console.log(response);
+                if(response.ok) {
+                    return response.json();
+                }
+                throw new Error('Request failed!');
+        }, networkError => console.log(networkError.message)
+        ).then( jsonResponse => {
+            console.log(jsonResponse);
+            return jsonResponse;
+        });
 
     }
 };
