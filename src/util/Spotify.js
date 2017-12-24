@@ -68,12 +68,14 @@ export const Spotify = {
                 localStorage.setItem("expiresAt", setExpirationTime(Number(expiresIn)));
                 console.log("Set tokens");
 
+                accessToken = localStorage.getItem("accessToken");
                 //clear URL
-                let origUrl= window.location.href.substr(0, window.location.href.indexOf('#'));
+                /*let origUrl= window.location.href.substr(0, window.location.href.indexOf('#'));
                 console.log(origUrl);
-                window.location = origUrl;
+                window.location = origUrl;*/
+                window.history.replaceState({}, document.title, ".");
 
-                return;
+                return accessToken;
             }
         } else if(accessToken === null || accessToken === '' || expired()) { // not previously set, so check if they are still valid
             console.log("invalid access token or token has expired");
