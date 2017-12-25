@@ -3,9 +3,6 @@ import './SearchResults.css';
 import TrackList from '../TrackList/TrackList';
 
 class SearchResults extends React.Component {
-    //add to playlist
-        // parent function
-
     render() {
         return (
             <div className="SearchResults">

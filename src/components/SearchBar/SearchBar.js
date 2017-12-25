@@ -14,7 +14,10 @@ class SearchBar extends React.Component {
     }
 
     handleSearch(event) {
-        this.props.searchSpotify(this.state.term);
+        // if the term is not an empty string or whitespace, search
+        if (/\S/.test(this.state.term)) {
+            this.props.searchSpotify(this.state.term);
+        }
         event.preventDefault();
     }
 
