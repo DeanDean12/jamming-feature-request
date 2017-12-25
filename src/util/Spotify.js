@@ -5,22 +5,18 @@ const redirectURI = credentials.spotify.redirectURI;
 const spotifyAccessUrl = 'https://accounts.spotify.com/'; 
 const spotifyApiUrl = 'https://api.spotify.com/v1/'; 
 
-let accessToken = localStorage.getItem("accessToken");
-let expiresAt = localStorage.getItem("expiresAt");
-
 function setExpirationTime(expiresIn) {
     let current = new Date();
     let expiration = new Date(current.setSeconds(current.getSeconds() + expiresIn));
-    console.log('Expiration time ' + expiration);
+    console.log('Expiration time set to: ' + expiration);
     return expiration;
 }
 
 function expired() {
-    if(expiresAt !== null && expiresAt !== 0) {
-        console.log('expiresAt variable has a value');
+    let expiresAt = localStorage.getItem("expiresAt");
+    if(expiresAt !== null) {
         let current = new Date();
         let expirationTime = new Date(localStorage.getItem('expiresAt'));
-        console.log(expirationTime);
         let expired = current >= expirationTime;
         console.log('Expired ' + expired);
         return expired;
@@ -31,8 +27,6 @@ function expired() {
 function clearStorage() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('expiresAt');
-    accessToken = '';
-    expiresAt = 0;
 }
 
 function getHashParams() {
@@ -51,28 +45,23 @@ function getHashParams() {
 export const Spotify = {
 
     getAccessToken() {
+        let accessToken = localStorage.getItem("accessToken");
         let url = `${spotifyAccessUrl}authorize?client_id=${clientID}&response_type=token&redirect_uri=${redirectURI}&scope=playlist-modify-public`;
         // check if recently set (so the params are in the url)
         if(Object.keys(getHashParams()).length > 0) {
             let params = getHashParams();
-            console.log('Params in URL hash');
             if(!params.hasOwnProperty("access_token")  || !params.hasOwnProperty("expires_in")) {
-                console.log("Redirect didn't include the desired params");
+                console.log("Hash doesn't include the desired params");
                 //redirect
                 window.location = url;
                 return;
             } else {
                 localStorage.setItem("accessToken", params.access_token);
                 let expiresIn = params.expires_in;
-                console.log(Number(expiresIn));
                 localStorage.setItem("expiresAt", setExpirationTime(Number(expiresIn)));
                 console.log("Set tokens");
 
                 accessToken = localStorage.getItem("accessToken");
-                //clear URL
-                /*let origUrl= window.location.href.substr(0, window.location.href.indexOf('#'));
-                console.log(origUrl);
-                window.location = origUrl;*/
                 window.history.replaceState({}, document.title, ".");
 
                 return accessToken;
@@ -85,7 +74,6 @@ export const Spotify = {
             window.location = url;
             return;
         } else {
-            console.log(typeof expiresAt);
             return accessToken;
         }
     },
@@ -96,7 +84,6 @@ export const Spotify = {
         let accessTokenVal = this.getAccessToken();
         let url = `${spotifyApiUrl}search?q=${term}&type=track`
         return fetch(url, { headers: { 'Authorization': `Bearer ${accessTokenVal}` } }).then( response => {
-            //console.log(response);
             if(response.ok) {
                 return response.json();
             }
@@ -133,7 +120,6 @@ export const Spotify = {
                                 body: JSON.stringify({name: playlistName}) 
                                 })
                 .then( response => {
-                    //console.log(response);
                     if(response.ok) {
                         return response.json();
                     }
@@ -149,7 +135,6 @@ export const Spotify = {
     getUserId(accessTokenVal) {
         let url = `${spotifyApiUrl}me`
         return fetch(url, { headers: { 'Authorization': `Bearer ${accessTokenVal}` } }).then( response => {
-            //console.log(response);
             if(response.ok) {
                 return response.json();
             }
@@ -161,9 +146,7 @@ export const Spotify = {
     },
 
     addTracksToPlaylist(accessTokenVal, userId, playlistId, playlistTracks) {
-        //console.log(playlistTracks);
         let uris = playlistTracks.map(track => track.uri);
-        console.log(uris);
         // map playlistTracks to a new array
         let url = `${spotifyApiUrl}users/${userId}/playlists/${playlistId}/tracks`
         return fetch(url, {
@@ -176,14 +159,12 @@ export const Spotify = {
                          }
                     )
             .then( response => {
-                //console.log(response);
                 if(response.ok) {
                     return response.json();
                 }
                 throw new Error('Request failed!');
         }, networkError => console.log(networkError.message)
         ).then( jsonResponse => {
-            console.log(jsonResponse);
             return jsonResponse;
         });
 

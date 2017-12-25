@@ -40,9 +40,6 @@ class Playlist extends React.Component {
     }
 
     render () {
-        console.log('hi');
-        console.log(this.state.playlist);
-        console.log('we');
         return (
           <div className="Playlist">
             <input onChange={this.handlePlaylistNameChange} value={this.state.playlistName} />
