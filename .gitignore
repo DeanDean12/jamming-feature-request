@@ -16,7 +16,7 @@
 /build
 
 # credentials
-/config/credentials.js
+/src/config/credentials.js
 
 # misc
 .DS_Store
