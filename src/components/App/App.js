@@ -16,23 +16,18 @@ class App extends React.Component {
         this.addTrackToPlaylist = this.addTrackToPlaylist.bind(this);
         this.submitPlaylist = this.submitPlaylist.bind(this);
         this.removeTrackFromPlaylist = this.removeTrackFromPlaylist.bind(this);
+        this.addTrackToSearchResults = this.addTrackToSearchResults.bind(this);
     }
 
     searchSpotify(term) {
         Spotify.search(term)
         .then(searchResults => this.setState({searchResults: searchResults}));
     }
-
+    
     addTrackToPlaylist(track) {
         this.setState({ playlist: this.state.playlist.concat(track) });
+        this.removeTrackFromSearchResults(track);
     }
-
-    //remove track from Search Results
-   /* removeTrackFromSearchResults(track) {
-        // find track with specific id
-        // remove that track from the array
-    }
-*/
 
     removeTrackFromPlaylist(track) {
         let playlist = this.state.playlist;
@@ -40,13 +35,26 @@ class App extends React.Component {
             if(playlist[i].id === track.id) {
                 playlist.splice(i, 1); 
                 this.setState({ playlist: playlist});
-                return;
+                break;
+            }   
+        }   
+        this.addTrackToSearchResults(track);
+    }
+
+    addTrackToSearchResults(track) {
+        this.setState({ searchResults: this.state.searchResults.concat(track) });
+    }
+
+    removeTrackFromSearchResults(track) {
+        let searchResults = this.state.searchResults;
+        for(let i = 0; i < searchResults.length; i++) {
+            if(searchResults[i].id === track.id) {
+                searchResults.splice(i, 1); 
+                this.setState({ searchResults: searchResults});
+                break;
             }   
         }   
     }
-
-
-    //remove track from Playlist
 
     submitPlaylist(playlist, playlistName) {
         Spotify.submitPlaylist(playlist, playlistName).then(
