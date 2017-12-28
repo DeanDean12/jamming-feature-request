@@ -15,6 +15,7 @@ class App extends React.Component {
         this.searchSpotify = this.searchSpotify.bind(this);
         this.addTrackToPlaylist = this.addTrackToPlaylist.bind(this);
         this.submitPlaylist = this.submitPlaylist.bind(this);
+        this.removeTrackFromPlaylist = this.removeTrackFromPlaylist.bind(this);
     }
 
     searchSpotify(term) {
@@ -25,6 +26,27 @@ class App extends React.Component {
     addTrackToPlaylist(track) {
         this.setState({ playlist: this.state.playlist.concat(track) });
     }
+
+    //remove track from Search Results
+   /* removeTrackFromSearchResults(track) {
+        // find track with specific id
+        // remove that track from the array
+    }
+*/
+
+    removeTrackFromPlaylist(track) {
+        let playlist = this.state.playlist;
+       for(let i = 0; i < playlist.length; i++) {
+            if(playlist[i].id === track.id) {
+                playlist.splice(i, 1); 
+                this.setState({ playlist: playlist});
+                return;
+            }   
+        }   
+    }
+
+
+    //remove track from Playlist
 
     submitPlaylist(playlist, playlistName) {
         Spotify.submitPlaylist(playlist, playlistName).then(
@@ -40,7 +62,7 @@ class App extends React.Component {
                 <SearchBar searchSpotify={this.searchSpotify} />
                 <div className="App-playlist">
                     <SearchResults searchResults={this.state.searchResults} addTrackToPlaylist={this.addTrackToPlaylist} />
-                    <Playlist playlist={this.state.playlist} submitPlaylist={this.submitPlaylist} />
+                    <Playlist playlist={this.state.playlist} submitPlaylist={this.submitPlaylist} removeTrack={this.removeTrackFromPlaylist} />
                 </div>
             </div>
         </div>

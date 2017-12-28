@@ -11,7 +11,6 @@ class Playlist extends React.Component {
         };
         this.handlePlaylistNameChange = this.handlePlaylistNameChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.removeTrack = this.removeTrack.bind(this);
     }
    
     componentWillReceiveProps(props) {
@@ -28,22 +27,11 @@ class Playlist extends React.Component {
         event.preventDefault();
     }
     
-    removeTrack(track) {
-        let playlist = this.state.playlist;
-       for(let i = 0; i < playlist.length; i++) {
-            if(playlist[i].id === track.id) {
-                playlist.splice(i, 1); 
-                this.setState({ playlist: playlist});
-                return;
-            }   
-        }   
-    }
-
     render () {
         return (
           <div className="Playlist">
             <input onChange={this.handlePlaylistNameChange} value={this.state.playlistName} />
-            <TrackList trackList={this.state.playlist} actionSymbol='-' trackAction={this.removeTrack} />
+            <TrackList trackList={this.state.playlist} actionSymbol='-' trackAction={this.props.removeTrack} />
             <a className="Playlist-save" onClick={this.handleSubmit}>SAVE TO SPOTIFY</a>
           </div>
         );

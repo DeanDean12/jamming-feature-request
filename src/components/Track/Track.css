@@ -1,6 +1,7 @@
 .Track {
   display: flex;
   align-items: center;
+  height: 120px;
   border-bottom: 1px solid rgba(256, 256, 256, 0.8);
 }
 
